@@ -1,0 +1,53 @@
+🔧 Key Techniques in Unsloth
+
+
+1. QLoRA (Quantized Low‑Rank Adaptation)
+Quantizes model weights to 4‑bit using BitsAndBytes-like dynamic quantization.
+
+Adds small trainable LoRA adapters to attention and MLP layers.
+
+Ensures minimal VRAM usage (~6–9 GB for 8B–14B models) 
+learnopencv.com
+docs.unsloth.ai
+.
+
+2. Custom Triton Kernels
+Core attention, MLP, normalization modules are reimplemented in Triton for fast, memory-efficient computation.
+
+These optimizations yield ~2–5x speed improvements over Hugging Face+FlashAttention2 
+
+
+3. Gradient Checkpointing & Memory Management
+Built-in checkpointing to reduce memory peaks
+
+Smart offloading and optimizer strategies to fit larger models on smaller GPUs 
+
+.
+
+4. LoRA and PEFT Integration
+Unsloth provides easy APIs:
+
+python
+Copy
+Edit
+model, tokenizer = FastLanguageModel.from_pretrained(
+  model_name="unsloth/Meta-Llama-3.1-8B-bnb-4bit",
+  load_in_4bit=True,
+  max_seq_length=2048,
+)
+model = FastLanguageModel.get_peft_model(
+  model,
+  r=16,
+  lora_alpha=16,
+  target_modules=[...],
+  use_gradient_checkpointing="unslo
+)
+This wraps the base model with LoRA adapters and configures gradient checkpointing 
+
+
+5. Unified Workflow
+Handles dataset loading (raw text, instruction, ShareGPT, etc.)
+
+Applies chat templates for instruction tuning
+
+Context window expansion (×4 length) enabled by memory optimizations
